@@ -2,14 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
     {
-      "//": "O service worker nunca pode ficar preso em cache: se o navegador guardar uma versao antiga, o app trava nela e nenhuma correcao chega.",
       "source": "/sw.js",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {
-      "//": "Idem para o manifesto e a pagina: o proprio service worker ja guarda o que precisa, com controle de versao.",
       "source": "/manifest.json",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
@@ -22,7 +20,6 @@
       ]
     },
     {
-      "//": "Protecoes que valem para tudo. O app lida com dinheiro e guarda sessao: nao deve poder ser embutido em pagina de terceiro, nem ter o tipo do arquivo adivinhado pelo navegador.",
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
