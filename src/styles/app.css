@@ -1,0 +1,384 @@
+/* =====================================================================
+   Giro - base e componentes de formulario
+   ===================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+* { margin: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Evita o "pulo" de layout quando uma tela tem scroll e outra nao. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family: var(--fonte);
+  font-size: var(--t-base);
+  font-weight: var(--peso-normal);
+  line-height: var(--lh-corpo);
+  color: var(--ink);
+  background: var(--papel);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  /* O app usa gestos proprios; o "puxar para atualizar" do navegador
+     atrapalharia a rolagem das listas. */
+  overscroll-behavior-y: none;
+}
+
+input, button, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+
+/* Numeros de dinheiro alinhados coluna a coluna. */
+.num { font-variant-numeric: tabular-nums; }
+
+/* Visivel so para leitor de tela. */
+.sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+/* Foco: sempre visivel, nunca removido. Acessibilidade nao e opcional.
+   Sem cor de marca no sistema, o anel e a propria tinta -- 12:1 sobre
+   o papel, mais visivel que qualquer acento cromatico seria. */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--r-min);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ---------------------------------------------------------------------
+   Layout
+   --------------------------------------------------------------------- */
+
+.app {
+  max-width: var(--largura);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  /* Espaco para a barra de abas flutuante + area segura do iPhone. */
+  padding-bottom: calc(var(--barra) + env(safe-area-inset-bottom) + var(--e-10));
+}
+
+/* O respiro maior entre blocos e o que da o ar editorial da referencia.
+   No desktop ela usa 80-120px; aqui 28px, que arejam sem custar uma
+   rolagem inteira de tela. */
+.pilha       { display: grid; gap: var(--respiro); }
+.pilha-sm    { display: grid; gap: var(--e-3); }
+.linha       { display: flex; align-items: center; gap: var(--e-3); }
+.linha-entre { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); }
+
+
+/* ---------------------------------------------------------------------
+   Tipografia
+   --------------------------------------------------------------------- */
+
+h1 {
+  font-size: var(--t-2xl);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--tr-2xl);
+  line-height: var(--lh-justo);
+}
+
+h2 {
+  font-size: var(--t-lg);
+  font-weight: var(--peso-medio);
+  line-height: 1.25;
+}
+
+h3 { font-size: var(--t-base); font-weight: var(--peso-forte); }
+
+.rotulo {
+  font-size: var(--t-micro);
+  font-weight: var(--peso-forte);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+}
+
+.apoio { font-size: var(--t-sm); color: var(--ink-2); }
+
+code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  background: var(--papel-fundo);
+  border-radius: var(--r-min);
+}
+
+
+/* ---------------------------------------------------------------------
+   Botoes
+
+   A referencia nao tem cor de CTA: os botoes dela sao pilulas claras com
+   texto escuro. Num app cheio de formularios isso deixaria "salvar"
+   indistinguivel de "cancelar", entao o botao principal usa o
+   tratamento neutro mais forte que existe no sistema -- tinta cheia.
+   Continua sem cor cromatica, e ganha a hierarquia que o app precisa.
+   --------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: var(--toque);
+  padding: 0 var(--e-6);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-pill);
+  font-size: var(--t-sm);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  transition: background var(--transicao), border-color var(--transicao),
+              transform var(--transicao), opacity var(--transicao);
+}
+
+.btn:active:not(:disabled) { transform: scale(0.97); }
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-principal {
+  background: var(--ink);
+  color: var(--papel);
+}
+.btn-principal:hover:not(:disabled) { opacity: 0.88; }
+
+.btn-secundario {
+  background: var(--papel-alto);
+  border-color: var(--linha);
+  color: var(--ink);
+}
+.btn-secundario:hover:not(:disabled) { background: var(--papel-fundo); }
+
+.btn-texto {
+  background: none;
+  color: var(--ink);
+  min-height: auto;
+  padding: var(--e-2);
+  font-weight: var(--peso-forte);
+  /* A referencia da a afordancia de link por sublinhado, nao por cor. */
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.btn-texto:hover:not(:disabled) { color: var(--ink-2); }
+
+.btn-bloco { width: 100%; }
+
+
+/* ---------------------------------------------------------------------
+   Formularios
+   --------------------------------------------------------------------- */
+
+.campo { display: grid; gap: var(--e-2); }
+
+.campo > label {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+  color: var(--ink);
+}
+
+.entrada {
+  width: 100%;
+  min-height: var(--toque);
+  padding: var(--e-3) var(--e-5);
+  background: var(--papel-alto);
+  border: 1.5px solid var(--linha-suave);
+  border-radius: var(--r-campo);
+  /* 17px tambem impede o zoom automatico do Safari ao focar um campo. */
+  font-size: var(--t-base);
+  transition: border-color var(--transicao), box-shadow var(--transicao);
+}
+
+.entrada::placeholder { color: var(--ink-3); }
+
+.entrada:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.entrada[aria-invalid="true"] { border-color: var(--saida); }
+
+.erro-campo {
+  font-size: var(--t-sm);
+  color: var(--saida);
+}
+
+
+/* ---------------------------------------------------------------------
+   Cartao
+
+   Branco sobre creme, sem sombra e sem borda. A diferenca de tom entre
+   as duas superficies e o que marca a elevacao -- e assim que a
+   referencia resolve profundidade, e o resultado parece impresso em vez
+   de flutuando.
+   --------------------------------------------------------------------- */
+
+.cartao {
+  background: var(--papel-alto);
+  border-radius: var(--r-card);
+  padding: var(--e-6);
+}
+
+
+/* ---------------------------------------------------------------------
+   Tela de autenticacao
+   --------------------------------------------------------------------- */
+
+.auth {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--e-6) var(--gutter);
+}
+
+.auth-caixa {
+  width: 100%;
+  max-width: 420px;
+  display: grid;
+  gap: var(--e-8);
+}
+
+.auth-marca {
+  display: grid;
+  gap: var(--e-3);
+  justify-items: center;
+  text-align: center;
+}
+
+/* Repete o icone do app, nas mesmas cores: tinta de fundo, simbolo
+   verde. E o unico lugar onde o verde aparece sem significar dinheiro,
+   e nao ha nenhum valor financeiro nesta tela para confundir. */
+.auth-logo {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--entrada-fill);
+  border-radius: var(--r-card);
+}
+.auth-logo svg { width: 46px; height: 46px; }
+
+.auth-troca {
+  text-align: center;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+
+/* ---------------------------------------------------------------------
+   Avisos (erro, sucesso, informacao)
+   --------------------------------------------------------------------- */
+
+.aviso {
+  display: flex;
+  gap: var(--e-3);
+  padding: var(--e-4) var(--e-5);
+  border-radius: var(--r-media);
+  font-size: var(--t-sm);
+  line-height: 1.45;
+}
+
+.aviso-erro    { background: var(--saida-bg);   color: var(--saida);   }
+.aviso-ok      { background: var(--entrada-bg); color: var(--entrada); }
+.aviso-atencao { background: var(--alerta-bg);  color: var(--alerta);  }
+
+
+/* ---------------------------------------------------------------------
+   Toast - confirmacao curta apos salvar
+   --------------------------------------------------------------------- */
+
+.toast-area {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--barra) + env(safe-area-inset-bottom) + var(--e-5));
+  transform: translateX(-50%);
+  display: grid;
+  gap: var(--e-2);
+  width: min(calc(100% - var(--e-8)), 420px);
+  z-index: 60;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-4) var(--e-5);
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--papel);
+  font-size: var(--t-sm);
+  font-weight: var(--peso-medio);
+  animation: sobe 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Texto escuro sobre os tons vivos: branco sobre o verde da 1,79 e
+   sobre o coral da 2,72, ambos ilegiveis. */
+.toast-ok  { background: var(--entrada-fill); color: var(--sobre-fill); }
+.toast-err { background: var(--saida-fill);   color: var(--sobre-fill); }
+
+@keyframes sobe {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ---------------------------------------------------------------------
+   Carregando
+   --------------------------------------------------------------------- */
+
+.girando {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: gira 700ms linear infinite;
+}
+
+@keyframes gira { to { transform: rotate(360deg); } }
+
+.tela-carregando {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+
+/* ---------------------------------------------------------------------
+   Estado vazio
+   --------------------------------------------------------------------- */
+
+.vazio {
+  display: grid;
+  gap: var(--e-4);
+  justify-items: center;
+  text-align: center;
+  padding: var(--e-10) var(--e-5);
+  color: var(--ink-2);
+}
+
+.vazio strong { color: var(--ink); font-weight: var(--peso-medio); }
+
+/* Formas geometricas planas, no espirito paper-cut da referencia, sem
+   inventar um acervo de personagens que um app de registro rapido nao
+   usaria. */
+.vazio-arte {
+  width: 96px;
+  height: 96px;
+}

@@ -1,0 +1,7 @@
+# Ferramentas de desenvolvimento: ficam no repositorio, mas nao
+# precisam ser servidas no site publicado.
+*.py
+supabase/
+.vscode/
+.idea/
+__pycache__/

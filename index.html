@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport-fit=cover libera as env(safe-area-inset-*) no iPhone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f1e4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1a16" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Controle de ganhos, gastos e manutencao para motorista de aplicativo.">
+  <title>Giro</title>
+
+  <!--
+    Inter em toda a escala, de 11px a 56px. A linguagem visual do app e
+    explicita em nao misturar familias: o carater vem do tamanho e do
+    tracking apertado, nao de uma segunda fonte.
+
+    display=swap faz o texto aparecer na hora com a fonte do sistema e
+    trocar quando a Inter chegar -- num posto com 4G ruim, ninguem fica
+    olhando tela branca esperando fonte.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+
+  <!-- Instalacao na tela inicial -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/public/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Giro">
+
+  <!--
+    Aplica o tema salvo antes do CSS pintar. Se isto ficasse no main.js
+    (que e modulo, portanto adiado), quem escolheu tema escuro veria um
+    lampejo branco em cada abertura.
+  -->
+  <script>
+    try {
+      var t = localStorage.getItem('giro:tema');
+      if (t && t !== 'sistema') document.documentElement.setAttribute('data-tema', t);
+    } catch (e) { /* armazenamento bloqueado: segue o sistema */ }
+  </script>
+
+  <link rel="stylesheet" href="./src/styles/tokens.css">
+  <link rel="stylesheet" href="./src/styles/app.css">
+  <link rel="stylesheet" href="./src/styles/componentes.css">
+
+  <!--
+    Sem etapa de build: o navegador resolve "supabase" por este mapa.
+    A versao esta presa no major 2 para o app nao quebrar sozinho com
+    uma atualizacao da biblioteca.
+  -->
+  <script type="importmap">
+  {
+    "imports": {
+      "supabase": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="raiz">
+    <div class="tela-carregando"><span class="girando"></span></div>
+  </div>
+
+  <noscript>
+    <div class="auth"><div class="auth-caixa"><div class="cartao">
+      <p>O Giro precisa de JavaScript ativado.</p>
+    </div></div></div>
+  </noscript>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

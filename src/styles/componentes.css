@@ -1,0 +1,994 @@
+/* =====================================================================
+   Giro - componentes do app
+   (tokens.css define as variaveis; app.css tem base e formularios)
+
+   Duas regras que valem para o arquivo inteiro:
+   1. Nenhuma sombra. Elevacao e creme -> branco, como na referencia.
+   2. Sobre qualquer -fill, o texto e --sobre-fill. Branco sobre o verde
+      da 1,79 de contraste e sobre o coral da 2,72.
+   ===================================================================== */
+
+.cabecalho { padding-top: var(--e-8); }
+
+.dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3);
+}
+
+/* --- Cores semanticas de valor --------------------------------------
+   pos/neg em vez de entrada/saida para nao colidir com .entrada, que e
+   a classe dos campos de formulario. */
+.pos { color: var(--entrada); }
+.neg { color: var(--saida); }
+
+
+/* ---------------------------------------------------------------------
+   Chips (filtro de periodo, escolha de categoria)
+   --------------------------------------------------------------------- */
+
+.chips {
+  display: flex;
+  gap: var(--e-2);
+  overflow-x: auto;
+  padding-bottom: var(--e-1);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 var(--e-5);
+  background: var(--papel-alto);
+  border: 1.5px solid var(--linha-suave);
+  border-radius: var(--r-pill);
+  font-size: var(--t-sm);
+  font-weight: var(--peso-medio);
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition: background var(--transicao), border-color var(--transicao),
+              color var(--transicao);
+}
+
+/* Selecionado vira tinta cheia. Sem cor de marca no sistema, a
+   inversao de tom e o sinal mais forte disponivel -- e o mais legivel. */
+.chip[aria-pressed="true"],
+.chip[aria-checked="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--papel);
+}
+
+/* Sangra ate a borda da tela para o ultimo chip nao parecer cortado. */
+.chips-filtro {
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+}
+
+
+/* ---------------------------------------------------------------------
+   Segmento (Tudo / Entradas / Saidas)
+   --------------------------------------------------------------------- */
+
+.segmento {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--e-1);
+  padding: var(--e-1);
+  background: var(--papel-fundo);
+  border-radius: var(--r-pill);
+}
+
+.segmento button {
+  min-height: 44px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: none;
+  font-size: var(--t-sm);
+  font-weight: var(--peso-medio);
+  color: var(--ink-2);
+  transition: background var(--transicao), color var(--transicao);
+}
+
+.segmento button[aria-selected="true"],
+.segmento button[aria-checked="true"] {
+  background: var(--papel-alto);
+  color: var(--ink);
+  font-weight: var(--peso-forte);
+}
+
+
+/* ---------------------------------------------------------------------
+   Placar - o numero que o motorista abre o app para ver
+   --------------------------------------------------------------------- */
+
+.placar {
+  background: var(--papel-alto);
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+
+.placar-topo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.placar-lado {
+  display: grid;
+  gap: var(--e-1);
+  padding: var(--e-5) var(--e-6);
+}
+.placar-lado + .placar-lado { border-left: 1.5px solid var(--linha-suave); }
+
+.placar-valor {
+  font-size: var(--t-lg);
+  font-weight: var(--peso-medio);
+}
+
+.placar-fundo {
+  display: grid;
+  gap: var(--e-1);
+  padding: var(--e-6);
+  border-top: 1.5px solid var(--linha-suave);
+}
+.placar-fundo.positivo { background: var(--entrada-bg); }
+.placar-fundo.negativo { background: var(--saida-bg); }
+
+/* O maior tipo do app, em 56px. E a resposta da pergunta que trouxe a
+   pessoa a abrir o aplicativo, e a referencia constroi a autoridade
+   dela justamente na escala do tipo. */
+.placar-liquido {
+  font-size: var(--t-3xl);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--tr-3xl);
+  line-height: var(--lh-justo);
+}
+.placar-fundo.positivo .placar-liquido { color: var(--entrada); }
+.placar-fundo.negativo .placar-liquido { color: var(--saida); }
+
+
+/* ---------------------------------------------------------------------
+   Metricas secundarias
+   --------------------------------------------------------------------- */
+
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-2);
+}
+
+.metrica {
+  display: grid;
+  gap: var(--e-1);
+  padding: var(--e-4) var(--e-2);
+  background: var(--papel-alto);
+  border-radius: var(--r-media);
+  text-align: center;
+}
+.metrica strong {
+  font-size: var(--t-base);
+  font-weight: var(--peso-medio);
+}
+
+
+/* ---------------------------------------------------------------------
+   Acoes rapidas
+   --------------------------------------------------------------------- */
+
+.acoes {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--e-3);
+}
+
+.acao { min-height: 58px; }
+.acao-sinal { font-size: var(--t-lg); font-weight: var(--peso-forte); }
+
+/* Com tres botoes o texto encolhe, mas a altura de toque se mantem. */
+.acoes-tres .acao {
+  font-size: var(--t-xs);
+  padding-inline: var(--e-2);
+}
+
+.btn-entrada { background: var(--entrada-fill); color: var(--sobre-fill); }
+.btn-entrada:hover:not(:disabled) { filter: brightness(0.95); }
+
+.btn-saida { background: var(--saida-fill); color: var(--sobre-fill); }
+.btn-saida:hover:not(:disabled) { filter: brightness(0.95); }
+
+.btn-perigo { background: var(--saida-fill); color: var(--sobre-fill); }
+.btn-perigo:hover:not(:disabled) { filter: brightness(0.95); }
+
+.btn-texto-perigo { color: var(--saida); width: 100%; }
+
+
+/* ---------------------------------------------------------------------
+   Listas de lancamento
+   --------------------------------------------------------------------- */
+
+.lista {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  background: var(--papel-alto);
+  border-radius: var(--r-media);
+  overflow: hidden;
+}
+
+.lista-item {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  width: 100%;
+  padding: var(--e-4) var(--e-5);
+  min-height: var(--toque);
+  background: var(--papel-alto);
+  text-align: left;
+}
+
+/* Divisoria so entre itens: sem sobra na primeira e na ultima linha. */
+.lista > li + li .lista-item,
+.lista > .lista-item + .lista-item { border-top: 1.5px solid var(--linha-suave); }
+
+.lista-item-toque {
+  border: none;
+  transition: background var(--transicao);
+}
+.lista-item-toque:hover { background: var(--papel-fundo); }
+.lista-item-toque:active { background: var(--papel-fundo); }
+
+.ponto {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.ponto.pos { background: var(--entrada-fill); }
+.ponto.neg { background: var(--saida-fill); }
+
+.lista-texto {
+  flex: 1 1 auto;
+  display: grid;
+  min-width: 0;
+}
+.lista-texto strong {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-medio);
+}
+.lista-texto .apoio {
+  font-size: var(--t-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Lancamento que ainda nao subiu: continua visivel e legivel, mas com
+   menos peso, e nao abre para edicao -- editar algo que so existe no
+   aparelho daria a impressao de que ja esta salvo no servidor. */
+.lista-item.pendente { opacity: 0.62; }
+.lista-item.pendente .ponto {
+  background: none;
+  border: 2px dashed var(--ink-3);
+  width: 12px;
+  height: 12px;
+}
+.lista-item.pendente:disabled { cursor: default; }
+
+.lista-valor {
+  flex: 0 0 auto;
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+  white-space: nowrap;
+}
+
+
+/* --- Agrupamento por dia --------------------------------------------- */
+
+.grupo { display: grid; gap: var(--e-3); }
+
+.grupo-topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  padding-inline: var(--e-4);
+}
+.grupo-topo h2 {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+  text-transform: capitalize;
+}
+
+.resumo-faixa {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-2);
+  padding: var(--e-5);
+  background: var(--papel-alto);
+  border-radius: var(--r-media);
+}
+.resumo-faixa > div { display: grid; gap: var(--e-1); }
+.resumo-faixa strong {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+}
+
+
+/* ---------------------------------------------------------------------
+   Barra de abas
+
+   A pilula flutuante e a assinatura da referencia: em vez de um rodape
+   retangular colado na borda, uma unica pastilha branca sobre o creme,
+   com margem em volta e contorno de tinta. A elevacao vem do contraste
+   de superficie e da borda, nunca de sombra.
+   --------------------------------------------------------------------- */
+
+.abas {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--e-3) + env(safe-area-inset-bottom));
+  z-index: 50;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--e-1);
+  width: calc(100% - var(--e-8));
+  max-width: calc(var(--largura) - var(--e-8));
+  padding: var(--e-2);
+  background: var(--papel-alto);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--r-pill);
+}
+
+.aba {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: var(--e-2) 0;
+  min-height: 50px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: none;
+  font-size: var(--t-micro);
+  font-weight: var(--peso-forte);
+  color: var(--ink-2);
+  transition: background var(--transicao), color var(--transicao);
+}
+
+.aba svg { width: 22px; height: 22px; }
+
+/* Ativa vira tinta cheia. O verde da referencia nao serve aqui: como
+   texto ou icone sobre branco, ele da 1,79 e some. */
+.aba[aria-current="true"] {
+  background: var(--ink);
+  color: var(--papel);
+}
+
+
+/* ---------------------------------------------------------------------
+   Folha (bottom sheet)
+   --------------------------------------------------------------------- */
+
+.sheet {
+  width: min(100%, var(--largura));
+  max-width: 100%;
+  max-height: 92dvh;
+  margin: auto auto 0;          /* cola no rodape */
+  padding: 0;
+  border: none;
+  border-radius: var(--r-card) var(--r-card) 0 0;
+  background: var(--papel-alto);
+  color: var(--ink);
+  animation: sheet-sobe 240ms cubic-bezier(0.2, 0, 0, 1);
+  overflow: hidden;
+}
+
+.sheet::backdrop {
+  background: var(--veu);
+  animation: aparece 240ms ease;
+}
+
+.sheet.saindo { animation: sheet-desce 160ms ease forwards; }
+
+@keyframes sheet-sobe  { from { transform: translateY(100%); } }
+@keyframes sheet-desce { to   { transform: translateY(100%); opacity: 0; } }
+@keyframes aparece     { from { opacity: 0; } }
+
+.sheet-topo {
+  display: grid;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-6) var(--e-4);
+  border-bottom: 1.5px solid var(--linha-suave);
+}
+
+.sheet-puxador {
+  width: 40px;
+  height: 4px;
+  margin-inline: auto;
+  border-radius: var(--r-pill);
+  background: var(--linha-suave);
+}
+
+.sheet-fechar {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--papel-fundo);
+  font-size: var(--t-lg);
+  line-height: 1;
+  color: var(--ink);
+}
+
+.sheet-corpo {
+  padding: var(--e-6);
+  padding-bottom: calc(var(--e-6) + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  max-height: calc(92dvh - 96px);
+  display: grid;
+  gap: var(--e-5);
+}
+/* Dentro da folha o respiro de 28px seria exagero: o formulario precisa
+   caber sem rolagem sempre que possivel. */
+.sheet-corpo > .pilha { gap: var(--e-5); }
+
+
+/* ---------------------------------------------------------------------
+   Campo de valor - o elemento mais usado do app
+   --------------------------------------------------------------------- */
+
+.valor-campo {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-4) var(--e-6);
+  background: var(--papel-fundo);
+  border: 2px solid transparent;
+  border-radius: var(--r-card);
+  transition: border-color var(--transicao);
+}
+.valor-campo:focus-within { border-color: var(--ink); }
+
+.valor-moeda {
+  font-size: var(--t-lg);
+  font-weight: var(--peso-medio);
+  color: var(--ink-2);
+}
+
+.valor-entrada {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  background: none;
+  font-size: var(--t-3xl);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--tr-3xl);
+  line-height: var(--lh-justo);
+  padding: 0;
+}
+.valor-entrada:focus { outline: none; }
+.valor-entrada::placeholder { color: var(--ink-3); }
+
+
+/* --- Detalhes recolhidos --------------------------------------------- */
+
+.mais summary {
+  cursor: pointer;
+  padding: var(--e-3) 0;
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+  color: var(--ink);
+  list-style: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.mais summary::-webkit-details-marker { display: none; }
+.mais summary::before { content: "+ "; text-decoration: none; }
+.mais[open] summary::before { content: "\2212 "; }
+
+
+/* ---------------------------------------------------------------------
+   Confirmacao
+   --------------------------------------------------------------------- */
+
+.confirma {
+  width: min(calc(100% - var(--e-8)), 400px);
+  padding: var(--e-6);
+  border: none;
+  border-radius: var(--r-card);
+  background: var(--papel-alto);
+  color: var(--ink);
+}
+.confirma::backdrop { background: var(--veu); }
+
+.confirma-botoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3);
+}
+
+
+/* ---------------------------------------------------------------------
+   Esqueleto de carregamento
+   --------------------------------------------------------------------- */
+
+.carregando-bloco {
+  height: 104px;
+  border-radius: var(--r-media);
+  background: linear-gradient(90deg,
+    var(--papel-fundo) 25%,
+    var(--papel-alto) 50%,
+    var(--papel-fundo) 75%);
+  background-size: 200% 100%;
+  animation: brilha 1.4s ease-in-out infinite;
+}
+
+@keyframes brilha {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+
+/* ---------------------------------------------------------------------
+   Combustivel
+   --------------------------------------------------------------------- */
+
+.faixa-consumo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-4);
+  padding: var(--e-6);
+  background: var(--papel-fundo);
+  border-radius: var(--r-card);
+}
+.faixa-consumo > div { display: grid; gap: var(--e-1); }
+.faixa-consumo strong {
+  font-size: var(--t-xl);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--tr-xl);
+}
+
+.nota-premissa {
+  font-size: var(--t-xs);
+  padding-inline: var(--e-4);
+  margin-top: calc(var(--e-4) * -1);
+}
+
+.linha-nota {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e-3);
+  padding: var(--e-4) var(--e-5);
+  background: var(--papel-alto);
+  border-radius: var(--r-pill);
+}
+
+/* Abre o total de gastos nas suas partes maiores. Fica discreto: e
+   contexto do numero de cima, nao um numero novo. */
+.reparticao {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--e-2);
+  font-size: var(--t-xs);
+  padding-inline: var(--e-2);
+}
+.reparticao strong { color: var(--ink); font-weight: var(--peso-forte); }
+
+
+/* --- Previa do comprovante ------------------------------------------- */
+
+.foto-previa {
+  display: grid;
+  gap: var(--e-3);
+  padding: var(--e-3);
+  background: var(--papel-fundo);
+  border-radius: var(--r-card);
+}
+
+.foto-previa img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: var(--r-media);
+  background: var(--papel);
+}
+
+.foto-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  padding-inline: var(--e-2);
+}
+.foto-info .apoio {
+  font-size: var(--t-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.foto-info .btn-texto { width: auto; flex: 0 0 auto; }
+
+
+/* ---------------------------------------------------------------------
+   Manutencao
+   --------------------------------------------------------------------- */
+
+.selo {
+  flex: 0 0 auto;
+  padding: 4px var(--e-3);
+  border-radius: var(--r-pill);
+  font-size: var(--t-micro);
+  font-weight: var(--peso-forte);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* Os tons vivos preenchem o selo, com texto de tinta por cima. */
+.selo-atrasada { background: var(--saida-fill);   color: var(--sobre-fill); }
+.selo-proxima  { background: var(--alerta-fill);  color: var(--sobre-fill); }
+.selo-ok       { background: var(--papel-fundo);  color: var(--ink-2); }
+
+/* --- Alerta no Inicio ------------------------------------------------- */
+
+.alerta-manut {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  width: 100%;
+  padding: var(--e-4) var(--e-5);
+  min-height: var(--toque);
+  background: var(--alerta-bg);
+  border: 1.5px solid var(--alerta-fill);
+  border-radius: var(--r-media);
+  text-align: left;
+  transition: filter var(--transicao);
+}
+.alerta-manut:hover { filter: brightness(0.97); }
+.alerta-manut:active { transform: scale(0.99); }
+
+.alerta-manut.grave {
+  background: var(--saida-bg);
+  border-color: var(--saida-fill);
+}
+
+.alerta-texto {
+  flex: 1 1 auto;
+  display: grid;
+  min-width: 0;
+}
+.alerta-texto strong {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+}
+.alerta-texto .apoio {
+  font-size: var(--t-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alerta-seta {
+  flex: 0 0 auto;
+  font-size: var(--t-lg);
+  color: var(--ink-3);
+  line-height: 1;
+}
+
+
+/* --- Item agendado ----------------------------------------------------- */
+
+/* O item tem duas acoes: abrir (area grande) e concluir (botao a
+   direita). Separados para nao concluir sem querer ao tentar editar. */
+.item-plano { padding: 0; gap: 0; }
+
+/* Faixa colorida na lateral: deixa a lista legivel de relance, sem
+   precisar ler o selo item por item. */
+.item-plano.status-atrasada { box-shadow: inset 4px 0 0 var(--saida-fill); }
+.item-plano.status-proxima  { box-shadow: inset 4px 0 0 var(--alerta-fill); }
+
+.plano-toque {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-width: 0;
+  padding: var(--e-4) var(--e-5);
+  min-height: var(--toque);
+  border: none;
+  background: none;
+  text-align: left;
+  color: inherit;
+  transition: background var(--transicao);
+}
+.plano-toque:hover { background: var(--papel-fundo); }
+
+.btn-concluir {
+  flex: 0 0 auto;
+  align-self: stretch;
+  padding-inline: var(--e-5);
+  border: none;
+  border-left: 1.5px solid var(--linha-suave);
+  background: none;
+  font-size: var(--t-xs);
+  font-weight: var(--peso-forte);
+  color: var(--entrada);
+  transition: background var(--transicao);
+}
+.btn-concluir:hover { background: var(--entrada-bg); }
+
+.vazio-curto { padding: var(--e-8) var(--e-5); }
+
+
+/* ---------------------------------------------------------------------
+   Checklists
+   --------------------------------------------------------------------- */
+
+.checklist {
+  background: var(--papel-alto);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-media);
+  overflow: hidden;
+  transition: border-color var(--transicao);
+}
+.checklist.completo { border-color: var(--entrada-fill); }
+
+.checklist-topo { display: flex; align-items: stretch; }
+
+.checklist-abrir {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  min-width: 0;
+  padding: var(--e-4) var(--e-5);
+  min-height: var(--toque);
+  border: none;
+  background: none;
+  text-align: left;
+  color: inherit;
+  transition: background var(--transicao);
+}
+.checklist-abrir:hover { background: var(--papel-fundo); }
+
+/* Contador que vira visto quando tudo esta conferido. */
+.checklist-anel {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--linha-suave);
+  font-size: var(--t-xs);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+  transition: background var(--transicao), border-color var(--transicao),
+              color var(--transicao);
+}
+.checklist-anel.cheio {
+  background: var(--entrada-fill);
+  border-color: var(--entrada-fill);
+  color: var(--sobre-fill);
+  font-size: var(--t-base);
+}
+
+.checklist-itens {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1.5px solid var(--linha-suave);
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding: var(--e-3) var(--e-5);
+  /* Alvo generoso: e marcado com o carro parado, mas com pressa. */
+  min-height: var(--toque);
+  cursor: pointer;
+  transition: background var(--transicao);
+}
+.checklist-item:hover { background: var(--papel-fundo); }
+.checklist-itens li + li .checklist-item { border-top: 1.5px solid var(--linha-suave); }
+
+.checklist-item input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  accent-color: var(--entrada);
+  cursor: pointer;
+}
+
+.checklist-item span { font-size: var(--t-sm); }
+.checklist-item input:checked + span {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+
+
+/* --- Edicao de itens --------------------------------------------------- */
+
+.item-edicao { display: flex; gap: var(--e-2); }
+.item-edicao .entrada { flex: 1 1 auto; min-width: 0; }
+
+.btn-remover {
+  flex: 0 0 auto;
+  width: var(--toque);
+  border: 1.5px solid var(--linha-suave);
+  border-radius: var(--r-campo);
+  background: var(--papel-alto);
+  font-size: var(--t-lg);
+  line-height: 1;
+  color: var(--ink-2);
+  transition: background var(--transicao), color var(--transicao);
+}
+.btn-remover:hover { background: var(--saida-bg); color: var(--saida); }
+
+
+/* ---------------------------------------------------------------------
+   Relatorios
+   --------------------------------------------------------------------- */
+
+.btn-voltar {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-1);
+  min-height: 44px;
+  padding: 0 var(--e-2) 0 0;
+  border: none;
+  background: none;
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+  color: var(--ink);
+}
+.btn-voltar span { font-size: var(--t-lg); line-height: 1; }
+
+.link-relatorios {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  width: 100%;
+  padding: var(--e-5);
+  min-height: var(--toque);
+  background: var(--papel-alto);
+  border-radius: var(--r-media);
+  text-align: left;
+  transition: background var(--transicao);
+}
+.link-relatorios:hover { background: var(--papel-fundo); }
+.link-relatorios > span:first-child { display: grid; gap: 2px; }
+.link-relatorios strong {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+}
+.link-relatorios .apoio { font-size: var(--t-xs); }
+
+
+/* --- Barras horizontais ------------------------------------------------ */
+
+.barras {
+  display: grid;
+  gap: var(--e-5);
+  padding: var(--e-6);
+  background: var(--papel-alto);
+  border-radius: var(--r-card);
+}
+
+.barra-linha { display: grid; gap: var(--e-2); }
+
+.barra-topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  font-size: var(--t-sm);
+}
+.barra-topo > span:last-child {
+  font-weight: var(--peso-forte);
+  white-space: nowrap;
+}
+
+.barra-pct {
+  margin-left: var(--e-1);
+  font-size: var(--t-xs);
+  font-weight: var(--peso-medio);
+  color: var(--ink-2);
+}
+
+.barra-trilho {
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--papel-fundo);
+  overflow: hidden;
+}
+
+.barra-preenche {
+  height: 100%;
+  border-radius: var(--r-pill);
+  transition: width 320ms cubic-bezier(0.2, 0, 0, 1);
+}
+.barra-preenche.pos { background: var(--entrada-fill); }
+.barra-preenche.neg { background: var(--saida-fill); }
+
+
+/* --- Evolucao mensal ---------------------------------------------------
+   Barras que sobem ou descem a partir de uma linha zero central. */
+
+.evolucao {
+  display: flex;
+  align-items: stretch;
+  gap: var(--e-2);
+  padding: var(--e-6) var(--e-5);
+  background: var(--papel-alto);
+  border-radius: var(--r-card);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.evolucao::-webkit-scrollbar { display: none; }
+
+.evo-col {
+  flex: 1 0 46px;
+  display: grid;
+  gap: var(--e-1);
+  justify-items: center;
+}
+
+.evo-area {
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  width: 100%;
+  height: 130px;
+}
+
+.evo-metade { display: flex; align-items: flex-end; justify-content: center; }
+.evo-metade.baixo { align-items: flex-start; }
+
+.evo-zero { height: 1.5px; background: var(--linha-suave); }
+
+.evo-barra {
+  width: 62%;
+  min-height: 3px;
+  border-radius: var(--r-min) var(--r-min) 0 0;
+  transition: height 320ms cubic-bezier(0.2, 0, 0, 1);
+}
+.evo-barra.pos { background: var(--entrada-fill); }
+.evo-barra.neg {
+  background: var(--saida-fill);
+  border-radius: 0 0 var(--r-min) var(--r-min);
+}
+
+.evo-rotulo {
+  font-size: var(--t-micro);
+  font-weight: var(--peso-forte);
+  color: var(--ink-2);
+  text-transform: capitalize;
+}
+.evo-valor { font-size: var(--t-micro); font-weight: var(--peso-forte); }
+
+
+/* ---------------------------------------------------------------------
+   Telas maiores: o celular e a prioridade, mas o app nao pode parecer
+   abandonado num monitor.
+   --------------------------------------------------------------------- */
+
+@media (min-width: 600px) {
+  .sheet {
+    border-radius: var(--r-card);
+    margin-bottom: auto;
+  }
+  .metricas { gap: var(--e-3); }
+  .cabecalho { padding-top: var(--e-10); }
+}

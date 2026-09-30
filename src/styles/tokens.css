@@ -1,0 +1,206 @@
+/* =====================================================================
+   Giro - identidade visual
+   Linguagem MindMarket: papel creme, tipo grande, raios generosos,
+   nenhuma sombra. Cor com parcimonia.
+
+   Um unico lugar para cor, espaco, tipografia e raio. Nenhum valor
+   bruto (#hex, px solto) deve aparecer fora deste arquivo.
+   ===================================================================== */
+
+:root {
+  /* --- Papel -------------------------------------------------------
+     O canvas e creme, nunca branco. O branco e a superficie elevada:
+     a diferenca de tom entre os dois e o que cria profundidade neste
+     sistema, no lugar de sombra. */
+  --papel:       #f5f1e4;   /* canvas da pagina */
+  --papel-alto:  #ffffff;   /* cards, barra de abas, campos */
+  --papel-fundo: #e0dbce;   /* superficie recuada */
+
+  /* --- Tinta -------------------------------------------------------
+     Quase-preto quente. Le mais macio que #000 sobre creme, e e o que
+     a referencia usa para texto, icones e bordas. */
+  --ink:   #2c2e2a;
+  --ink-2: #6b6d69;   /* secundario. O #80827f da referencia da 3,43
+                         sobre creme e reprova em texto pequeno; este
+                         da 4,63 e passa. */
+  --ink-3: #8a8b85;   /* placeholder e decoracao. Nunca texto que
+                         precise ser lido. Escolhido pelo minimo de 3,0
+                         sobre branco -- #9a9b96 dava 2,80 e reprovava. */
+
+  --linha:       #2c2e2a;   /* borda estrutural: nav, chips, botao fantasma */
+  --linha-suave: #d9d4c5;   /* divisoria interna de lista */
+
+  /* --- Semantica financeira ----------------------------------------
+     Aqui esta a unica divergencia grande da referencia, que trata
+     verde/coral/amarelo como enfeite de ilustracao. Um app de dinheiro
+     nao tem esse luxo: verde tem que significar entrou, vermelho saiu.
+
+     Cada cor vem em duas formas, porque os tons vivos da referencia
+     nao servem como texto:
+       --x        tom escurecido, para TEXTO (>=4,5 sobre papel e card)
+       --x-fill   tom vivo original, para PREENCHIMENTO
+     Sobre qualquer -fill o texto e --ink, nunca branco: branco sobre
+     o verde da 1,79 e sobre o coral da 2,72. */
+  --entrada:      #3f6e20;
+  --entrada-fill: #8ed462;
+  --entrada-bg:   #e9f4dc;
+
+  --saida:        #b53326;
+  --saida-fill:   #ff705d;
+  --saida-bg:     #fdeae6;
+
+  --alerta:       #8a6410;
+  --alerta-fill:  #f5e211;
+  --alerta-bg:    #fdf6d9;
+
+  --info-fill:    #2ba0ff;   /* so decorativo, como na referencia */
+
+  /* Texto que vai sobre um -fill. Muda no tema escuro. */
+  --sobre-fill: #2c2e2a;
+
+  /* Veu atras de folha e confirmacao. Token proprio porque nao da para
+     derivar de --ink: no tema escuro a tinta e clara, e o veu sairia
+     branco em vez de escurecer o fundo. */
+  --veu: rgb(44 46 42 / 0.55);
+
+  /* --- Tipografia ---------------------------------------------------
+     Inter em toda a escala, de 11px a 56px -- a referencia e explicita
+     em nao misturar familias. O carater vem do tamanho e do tracking
+     negativo, nao de uma segunda fonte.
+
+     A referencia chega a 140px. Isso e desktop editorial; numa tela de
+     390px nao cabe. O espirito (tipo grande e confiante) fica, a
+     medida e reescalada. */
+  --fonte: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+           'Helvetica Neue', Arial, sans-serif;
+
+  --t-micro: 0.6875rem;  /* 11px - selos */
+  --t-xs:    0.8125rem;  /* 13px - detalhe de lista */
+  --t-sm:    0.9375rem;  /* 15px - body-sm da referencia */
+  --t-base:  1.0625rem;  /* 17px - corpo */
+  --t-lg:    1.25rem;    /* 20px - subheading */
+  --t-xl:    1.875rem;   /* 30px - heading-sm */
+  --t-2xl:   2.5rem;     /* 40px - titulo de tela */
+  --t-3xl:   3.5rem;     /* 56px - o numero do "Sobrou" */
+
+  --peso-normal: 400;
+  --peso-medio:  500;
+  --peso-forte:  600;
+
+  /* Tracking: aperta conforme o tipo cresce, como na referencia. */
+  --tr-xl:  -0.02em;
+  --tr-2xl: -0.04em;
+  --tr-3xl: -0.05em;
+
+  --lh-justo:  0.95;   /* display */
+  --lh-corpo:  1.5;
+
+  /* --- Espaco (multiplos de 4px) ------------------------------------ */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-5: 1.25rem;
+  --e-6: 1.5rem;
+  --e-7: 1.75rem;
+  --e-8: 2rem;
+  --e-10: 2.5rem;
+  --e-12: 3rem;
+
+  /* Respiro entre secoes. A referencia usa 80-120px no desktop; no
+     celular isso empurraria tudo para fora da tela. 28px da o ar sem
+     custar uma rolagem inteira. */
+  --respiro: var(--e-7);
+
+  /* --- Raio ---------------------------------------------------------
+     A referencia pede 50px em cards. Os dela tem 600-700px de largura;
+     um card de 100px de altura com 50px de raio vira um estadio e come
+     o conteudo. Entao: pilula total onde a altura permite, raio grande
+     porem contido nos cards. Nada abaixo de 10px. */
+  --r-pill:  999px;   /* botoes, chips, selos, barra de abas */
+  --r-card:  36px;    /* placar, cards grandes, folha */
+  --r-media: 28px;    /* listas, cartoes de checklist */
+  --r-campo: 20px;    /* campos de formulario */
+  --r-min:   10px;    /* micro-elementos */
+
+  /* --- Medidas de layout --------------------------------------------
+     --toque e o alvo minimo de dedo. 52px porque o app e usado com o
+     carro parado mas com pressa, as vezes sem olhar direito. */
+  --toque:   52px;
+  --barra:   66px;
+  --largura: 560px;
+  --gutter:  var(--e-4);
+
+  --transicao: 160ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =====================================================================
+   Papel noturno
+
+   A referencia e light-only e nao cobre isto -- a variante e derivada.
+   Existe porque motorista de aplicativo trabalha de madrugada, e uma
+   tela creme brilhante as 23h dentro do carro machuca a vista.
+
+   Nao e o mesmo sistema invertido: e papel queimado, marrom-escuro
+   quente, para nao perder a sensacao de impresso. E aqui os tons VIVOS
+   da referencia viram texto -- o mesmo #8ed462 que preenche botao no
+   claro da 9,72 de contraste sobre o papel escuro.
+   ===================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --papel:       #1c1a16;
+    --papel-alto:  #272420;
+    --papel-fundo: #322e28;
+
+    --ink:   #f0ece0;
+    --ink-2: #b0aaa0;
+    --ink-3: #85807a;
+
+    --linha:       #7a7064;
+    --linha-suave: #3b3630;
+
+    --entrada:      #8ed462;
+    --entrada-fill: #8ed462;
+    --entrada-bg:   #24301a;
+
+    --saida:        #ff8f80;
+    --saida-fill:   #ff705d;
+    --saida-bg:     #33201c;
+
+    --alerta:       #f5d76e;
+    --alerta-fill:  #f5e211;
+    --alerta-bg:    #302a14;
+
+    --sobre-fill: #1c1a16;
+    --veu: rgb(8 7 5 / 0.72);
+  }
+}
+
+:root[data-tema="escuro"] {
+  --papel:       #1c1a16;
+  --papel-alto:  #272420;
+  --papel-fundo: #322e28;
+
+  --ink:   #f0ece0;
+  --ink-2: #b0aaa0;
+  --ink-3: #85807a;
+
+  --linha:       #7a7064;
+  --linha-suave: #3b3630;
+
+  --entrada:      #8ed462;
+  --entrada-fill: #8ed462;
+  --entrada-bg:   #24301a;
+
+  --saida:        #ff8f80;
+  --saida-fill:   #ff705d;
+  --saida-bg:     #33201c;
+
+  --alerta:       #f5d76e;
+  --alerta-fill:  #f5e211;
+  --alerta-bg:    #302a14;
+
+  --sobre-fill: #1c1a16;
+  --veu: rgb(8 7 5 / 0.72);
+}
