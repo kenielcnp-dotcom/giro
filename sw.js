@@ -31,8 +31,8 @@ const CONCHA = [
   '/src/styles/tokens.css',
   '/src/styles/app.css',
   '/src/styles/componentes.css',
-  '/public/icone-192.png',
-  '/public/icone-512.png',
+  '/icones/icone-192.png',
+  '/icones/icone-512.png',
 ];
 
 self.addEventListener('install', (evento) => {

@@ -9,7 +9,7 @@ maquina, e assim o script funciona em qualquer lugar que tenha Python.
 
     python gerar-icones.py
 
-Escreve em public/.
+Escreve em icones/.
 """
 
 import math
@@ -17,7 +17,7 @@ import struct
 import zlib
 from pathlib import Path
 
-SAIDA = Path(__file__).resolve().parent / "public"
+SAIDA = Path(__file__).resolve().parent / "icones"
 
 FUNDO = (44, 46, 42)      # --ink
 SIMBOLO = (142, 212, 98)  # --entrada-fill
