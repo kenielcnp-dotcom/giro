@@ -29,6 +29,29 @@ function conferir({ data, error }) {
   return data;
 }
 
+// O Supabase devolve no maximo 1000 linhas por requisicao (o max-rows
+// padrao do projeto). Um ano de corridas passa disso facil, e o corte
+// e silencioso: o total do relatorio sairia menor, sem erro nenhum.
+const PAGINA = 1000;
+
+/**
+ * Busca todas as linhas de uma consulta, de pagina em pagina.
+ *
+ * `montar` cria a consulta do zero a cada volta, porque o builder do
+ * supabase-js nao pode ser reaproveitado depois de executado. A ordem
+ * precisa terminar num campo unico (id): sem isso, duas linhas com a
+ * mesma data podem trocar de lugar entre uma pagina e outra, e uma
+ * aparece duas vezes enquanto a outra some.
+ */
+async function todasAsLinhas(montar) {
+  const linhas = [];
+  for (let inicio = 0; ; inicio += PAGINA) {
+    const lote = conferir(await montar().range(inicio, inicio + PAGINA - 1));
+    linhas.push(...lote);
+    if (lote.length < PAGINA) return linhas;
+  }
+}
+
 
 // --- Categorias -------------------------------------------------------
 
@@ -51,20 +74,27 @@ export async function criarCategoria(tipo, nome) {
 
 // --- Transacoes -------------------------------------------------------
 
-/** Lancamentos do periodo, mais recentes primeiro. */
+/**
+ * Lancamentos do periodo, mais recentes primeiro.
+ * `limite: null` traz todos, paginando -- e o que os totais precisam.
+ */
 export async function listarTransacoes({ de, ate, tipo = null, limite = 500 }) {
-  let consulta = db
-    .from('transactions')
-    .select('*, categoria:categories(id, nome, icone)')
-    .gte('data', de)
-    .lte('data', ate)
-    .order('data', { ascending: false })
-    .order('hora', { ascending: false, nullsFirst: false })
-    .order('criado_em', { ascending: false })
-    .limit(limite);
+  const montar = () => {
+    let consulta = db
+      .from('transactions')
+      .select('*, categoria:categories(id, nome, icone)')
+      .gte('data', de)
+      .lte('data', ate)
+      .order('data', { ascending: false })
+      .order('hora', { ascending: false, nullsFirst: false })
+      .order('criado_em', { ascending: false })
+      .order('id');
+    if (tipo) consulta = consulta.eq('tipo', tipo);
+    return consulta;
+  };
 
-  if (tipo) consulta = consulta.eq('tipo', tipo);
-  return conferir(await consulta);
+  if (limite === null) return todasAsLinhas(montar);
+  return conferir(await montar().limit(limite));
 }
 
 export async function criarTransacao(campos) {
@@ -110,16 +140,20 @@ export async function excluirTransacao(id) {
 // --- Abastecimentos ---------------------------------------------------
 
 export async function listarAbastecimentos({ de = null, ate = null, limite = 200 } = {}) {
-  let consulta = db
-    .from('fuel_logs')
-    .select('*')
-    .order('data', { ascending: false })
-    .order('odometro', { ascending: false, nullsFirst: false })
-    .limit(limite);
+  const montar = () => {
+    let consulta = db
+      .from('fuel_logs')
+      .select('*')
+      .order('data', { ascending: false })
+      .order('odometro', { ascending: false, nullsFirst: false })
+      .order('id');
+    if (de) consulta = consulta.gte('data', de);
+    if (ate) consulta = consulta.lte('data', ate);
+    return consulta;
+  };
 
-  if (de) consulta = consulta.gte('data', de);
-  if (ate) consulta = consulta.lte('data', ate);
-  return conferir(await consulta);
+  if (limite === null) return todasAsLinhas(montar);
+  return conferir(await montar().limit(limite));
 }
 
 export async function criarAbastecimento(campos) {
@@ -464,9 +498,11 @@ export async function listarMovimentos({ de, ate }) {
   let offline = false;
 
   try {
+    // Sem limite: e daqui que saem os totais, e um total calculado sobre
+    // as 500 primeiras linhas parece certo e esta errado.
     [transacoes, abastecimentos, manutencoes] = await Promise.all([
-      listarTransacoes({ de, ate }),
-      listarAbastecimentos({ de, ate }),
+      listarTransacoes({ de, ate, limite: null }),
+      listarAbastecimentos({ de, ate, limite: null }),
       listarManutencoesPeriodo({ de, ate }),
     ]);
   } catch (e) {
@@ -527,9 +563,14 @@ export async function listarMovimentos({ de, ate }) {
   // O que ainda nao subiu entra na lista igual, marcado. Sem isto, o
   // lancamento feito sem sinal sumiria da tela ate a rede voltar -- e
   // a pessoa registraria de novo, achando que tinha falhado.
+  //
+  // Um item pode ja ter subido e ainda estar na fila (a rede caiu
+  // depois do insert, antes da resposta). O id nasce no aparelho, entao
+  // da para reconhecer: se ja veio do banco, nao soma de novo.
+  const vieramDoBanco = new Set(transacoes.map((t) => t.id));
   for (const item of pendentes()) {
     const r = item.registro;
-    if (r.data < de || r.data > ate) continue;
+    if (r.data < de || r.data > ate || vieramDoBanco.has(r.id)) continue;
 
     movimentos.push({
       origem: 'transacao',
@@ -552,12 +593,13 @@ export async function listarMovimentos({ de, ate }) {
 }
 
 async function listarManutencoesPeriodo({ de, ate }) {
-  return conferir(
-    await db
+  return todasAsLinhas(() =>
+    db
       .from('maintenance')
       .select('*')
       .gte('data', de)
       .lte('data', ate)
       .order('data', { ascending: false })
+      .order('id')
   );
 }
