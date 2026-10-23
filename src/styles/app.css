@@ -163,6 +163,9 @@ code {
 
 .btn-texto {
   background: none;
+  /* Sem isto fica a borda padrao do <button>: um retangulo cinza em
+     volta de algo que deveria parecer link. */
+  border: none;
   color: var(--ink);
   min-height: auto;
   padding: var(--e-2);
