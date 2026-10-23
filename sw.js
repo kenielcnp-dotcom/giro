@@ -15,7 +15,7 @@
 
 // Trocar esta versao a cada publicacao: e o que faz o navegador buscar
 // os arquivos novos em vez de servir os guardados.
-const VERSAO = 'giro-v1';
+const VERSAO = 'giro-v2';
 
 // O minimo para a primeira tela aparecer sem rede.
 const CONCHA = [

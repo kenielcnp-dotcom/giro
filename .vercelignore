@@ -2,6 +2,7 @@
 # precisam ser servidas no site publicado.
 *.py
 supabase/
+testes/
 .vscode/
 .idea/
 __pycache__/

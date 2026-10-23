@@ -118,6 +118,7 @@
 
 .placar-lado {
   display: grid;
+  align-content: start;   /* o lado com menos linhas nao desce para o meio */
   gap: var(--e-1);
   padding: var(--e-5) var(--e-6);
 }
@@ -916,6 +917,7 @@
 }
 
 .barra-preenche {
+  display: block;
   height: 100%;
   border-radius: var(--r-pill);
   transition: width 320ms cubic-bezier(0.2, 0, 0, 1);
@@ -924,59 +926,465 @@
 .barra-preenche.neg { background: var(--saida-fill); }
 
 
-/* --- Evolucao mensal ---------------------------------------------------
-   Barras que sobem ou descem a partir de uma linha zero central. */
-
-.evolucao {
-  display: flex;
-  align-items: stretch;
-  gap: var(--e-2);
-  padding: var(--e-6) var(--e-5);
-  background: var(--papel-alto);
-  border-radius: var(--r-card);
-  overflow-x: auto;
-  scrollbar-width: none;
+/* Categoria tocavel: abre os registros que formam a barra. */
+.barra-toque {
+  width: 100%;
+  padding: var(--e-1) 0;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
 }
-.evolucao::-webkit-scrollbar { display: none; }
+.barra-toque:hover .barra-trilho { background: var(--linha-suave); }
 
-.evo-col {
-  flex: 1 0 46px;
+
+/* --- Estado do relatorio ----------------------------------------------- */
+
+/* Troca de filtro: o conteudo anterior fica esmaecido ate o novo chegar,
+   em vez de sumir e deixar a tela piscando. */
+.atualizando {
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity var(--transicao);
+}
+
+.carregando-alto { height: 240px; }
+
+.nota {
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+  padding-inline: var(--e-2);
+}
+
+/* Mensagem no lugar de um bloco que nao tem dado para mostrar. */
+.nota-caixa {
+  padding: var(--e-4) var(--e-5);
+  background: var(--papel-alto);
+  border-radius: var(--r-media);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.notas {
   display: grid;
   gap: var(--e-1);
-  justify-items: center;
+  margin-top: calc(var(--e-4) * -1);
+  padding: 0 var(--e-2);
+  list-style: none;
+  font-size: var(--t-xs);
+  color: var(--ink-2);
 }
 
-.evo-area {
+.apagado { color: var(--ink-2); }
+
+.titulo-com-apoio { display: grid; gap: 2px; }
+.titulo-com-apoio .apoio { font-size: var(--t-xs); }
+
+
+/* --- Variacao contra o periodo anterior -------------------------------- */
+
+.variacao {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: inherit;
+  gap: 2px;
+  font-size: var(--t-xs);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.variacao.pos    { color: var(--entrada); }
+.variacao.neg    { color: var(--saida); }
+.variacao.neutra { color: var(--ink-2); }
+
+.metrica .variacao { justify-content: center; }
+
+.placar-nota {
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+
+.placar-comparacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--e-1) var(--e-2);
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+
+
+/* --- Melhor e pior dia --------------------------------------------------- */
+
+.destaques {
   display: grid;
-  grid-template-rows: 1fr auto 1fr;
-  width: 100%;
-  height: 130px;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-2);
+}
+.destaques-um { grid-template-columns: 1fr; }
+
+.destaque {
+  display: grid;
+  gap: 2px;
+  min-height: var(--toque);
+  padding: var(--e-4) var(--e-5);
+  border: none;
+  border-radius: var(--r-media);
+  background: var(--papel-alto);
+  color: inherit;
+  text-align: left;
+  transition: background var(--transicao);
+}
+.destaque:hover { background: var(--papel-fundo); }
+.destaque strong {
+  font-size: var(--t-base);
+  font-weight: var(--peso-medio);
+}
+.destaque .apoio { font-size: var(--t-xs); }
+
+
+/* ---------------------------------------------------------------------
+   Graficos de barras (ui/grafico.js)
+
+   Cada coluna e um botao que ocupa a altura inteira: o alvo de toque e
+   a coluna, nao a barra, que pode ter 2px num dia fraco. A dica fica
+   numa faixa propria acima do grafico, para nunca cobrir as barras
+   vizinhas.
+   --------------------------------------------------------------------- */
+
+.cartao-grafico {
+  display: grid;
+  gap: var(--e-4);
+  padding: var(--e-5) var(--e-4);
+}
+.cartao-grafico > h2,
+.cartao-grafico > .nota { padding-inline: var(--e-2); }
+
+.graf {
+  --graf-altura: 168px;
+  --graf-dica: 32px;
+  display: grid;
+  gap: var(--e-3);
 }
 
-.evo-metade { display: flex; align-items: flex-end; justify-content: center; }
-.evo-metade.baixo { align-items: flex-start; }
-
-.evo-zero { height: 1.5px; background: var(--linha-suave); }
-
-.evo-barra {
-  width: 62%;
-  min-height: 3px;
-  border-radius: var(--r-min) var(--r-min) 0 0;
-  transition: height 320ms cubic-bezier(0.2, 0, 0, 1);
+.graf-corpo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--e-2);
 }
-.evo-barra.pos { background: var(--entrada-fill); }
-.evo-barra.neg {
+
+.graf-eixo {
+  min-width: 2.25rem;
+  padding-top: var(--graf-dica);
+}
+.graf-eixo-area {
+  position: relative;
+  height: var(--graf-altura);
+}
+.graf-eixo span {
+  position: absolute;
+  right: 0;
+  bottom: var(--y);
+  transform: translateY(50%);
+  font-size: var(--t-micro);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+/* O respiro lateral e area de corte do overflow: sem ele, o "01" do
+   primeiro dia (mais largo que a coluna de 8px) sai cortado. */
+.graf-janela {
+  padding-inline: var(--e-1);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.graf-janela::-webkit-scrollbar { display: none; }
+
+.graf-trilho {
+  position: relative;
+  min-width: calc(var(--n) * var(--col));
+}
+
+.graf-dica-faixa {
+  position: relative;
+  height: var(--graf-dica);
+}
+
+/* Tinta cheia, como o toast: o par de maior contraste nos dois temas. */
+.graf-dica {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: var(--e-1) var(--e-3);
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--papel);
+  font-size: var(--t-xs);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.graf-area {
+  position: relative;
+  height: var(--graf-altura);
+}
+
+.graf-grade span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--y);
+  border-top: 1px solid var(--linha-suave);
+}
+.graf-grade span.zero { border-top: 1.5px solid var(--ink-3); }
+
+.graf-colunas {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+}
+
+/* Cabendo na tela, o arrasto horizontal e nosso (percorre as barras);
+   rolando de lado, e do navegador. */
+.graf:not(.rolavel) .graf-colunas { touch-action: pan-y; }
+
+.graf-col {
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-min);
+  background: none;
+  transition: background var(--transicao);
+}
+.graf-col.sel { background: color-mix(in srgb, var(--ink) 9%, transparent); }
+.graf-col:focus-visible { outline-offset: -2px; }
+
+/* Futuro: hachurado, para nao parecer um dia vazio que ja passou. */
+.graf-col[data-estado="futuro"] {
+  background: repeating-linear-gradient(
+    135deg, transparent 0 3px, var(--linha-suave) 3px 4px);
+}
+
+.graf-barra {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(70%, 28px);
+  height: var(--h);
+  min-height: 2px;
+  transform: translateX(-50%);
+  border-radius: var(--r-pill) var(--r-pill) 0 0;
+  background: var(--entrada-fill);
+}
+.graf-col.sel .graf-barra {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.graf-lucro .graf-barra { bottom: var(--z); }
+.graf-lucro .graf-barra.neg {
+  top: calc(100% - var(--z));
+  bottom: auto;
+  border-radius: 0 0 var(--r-pill) var(--r-pill);
   background: var(--saida-fill);
-  border-radius: 0 0 var(--r-min) var(--r-min);
 }
 
-.evo-rotulo {
+/* Resultado exatamente zero: um traco neutro sobre a linha. */
+.graf-lucro .graf-barra.zero {
+  height: 2px;
+  min-height: 0;
+  bottom: calc(var(--z) - 1px);
+  border-radius: 0;
+  background: var(--ink-2);
+}
+
+/* Barra que passa da escala: termina reta, com a marca de corte de
+   eixo quebrado. O valor inteiro aparece no toque. */
+.graf-lucro .graf-barra.cortada { border-radius: 0; }
+.graf-barra.cortada::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  right: -3px;
+  bottom: 7px;
+  height: 3px;
+  background: var(--papel-alto);
+  transform: skewY(-24deg);
+}
+
+/* Sem registro: um ponto na base, nao uma barra de zero. */
+.graf-marca {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  background: var(--ink-3);
+}
+.graf-lucro .graf-marca { bottom: var(--z); }
+.graf-col[data-estado="sem-ganho"] .graf-marca { background: var(--saida-fill); }
+
+.graf-x {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  padding-top: var(--e-2);
+}
+.graf-x span {
+  display: flex;
+  justify-content: center;
+  font-size: var(--t-micro);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+.graf-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2) var(--e-4);
+  padding-inline: var(--e-2);
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+.graf-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.leg {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.leg-pos { background: var(--entrada-fill); }
+.leg-neg { background: var(--saida-fill); }
+.leg-zero { height: 2px; border-radius: 0; background: var(--ink-2); }
+.leg-vazio,
+.leg-so-gasto { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); }
+.leg-so-gasto { background: var(--saida-fill); }
+.leg-futuro {
+  background: repeating-linear-gradient(
+    135deg, transparent 0 3px, var(--ink-3) 3px 4px);
+  border: 1px solid var(--linha-suave);
+}
+.leg-cortada {
+  position: relative;
+  background: var(--saida-fill);
+  border-radius: 0;
+}
+.leg-cortada::after {
+  content: "";
+  position: absolute;
+  inset: 4px -2px auto;
+  height: 2px;
+  background: var(--papel-alto);
+  transform: skewY(-24deg);
+}
+
+
+/* --- Painel do dia selecionado ------------------------------------------ */
+
+.painel-dia {
+  display: grid;
+  gap: var(--e-3);
+  padding: var(--e-4) var(--e-5);
+  border: 1.5px solid var(--linha-suave);
+  border-radius: var(--r-media);
+}
+
+.painel-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+
+.painel-titulo {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+}
+
+.numeros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3) var(--e-4);
+}
+.numeros > div { display: grid; gap: 2px; }
+.numeros dd {
+  margin: 0;
+  font-size: var(--t-base);
+  font-weight: var(--peso-medio);
+}
+.numeros dd .apoio { font-size: var(--t-xs); font-weight: var(--peso-normal); }
+
+.painel-mais { justify-self: start; padding-inline: 0; }
+
+/* Dentro da folha (que ja e papel-alto), lista e resumo descem para o
+   papel: senao viram uma superficie so, sem borda entre o card e a folha. */
+.registros .lista,
+.registros .lista-item,
+.registros .resumo-faixa { background: var(--papel); }
+
+
+/* --- Detalhamento por dia ------------------------------------------------ */
+
+.tabela-dias { display: grid; gap: var(--e-2); }
+
+/* Cabecalho e linhas dividem a mesma grade de tres colunas, para os
+   valores ficarem um embaixo do outro. */
+.tabela-cabeca,
+.linha-dia-nums {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-2);
+}
+
+.tabela-cabeca {
+  padding-inline: var(--e-5);
   font-size: var(--t-micro);
   font-weight: var(--peso-forte);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--ink-2);
-  text-transform: capitalize;
 }
-.evo-valor { font-size: var(--t-micro); font-weight: var(--peso-forte); }
+.tabela-cabeca span:not(:first-child),
+.linha-dia-nums > :not(:first-child) { text-align: right; }
+
+.linha-dia {
+  display: grid;
+  gap: var(--e-2);
+  align-items: stretch;
+}
+
+.linha-dia-topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+.linha-dia-topo strong {
+  font-size: var(--t-sm);
+  font-weight: var(--peso-forte);
+}
+.linha-dia-topo .apoio { font-size: var(--t-xs); }
+
+.linha-dia-nums {
+  font-size: var(--t-sm);
+  white-space: nowrap;
+}
+.linha-dia-nums strong { font-weight: var(--peso-forte); }
 
 
 /* ---------------------------------------------------------------------

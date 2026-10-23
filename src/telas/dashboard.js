@@ -10,11 +10,12 @@ import { resumirMovimentos } from '../lib/movimentos.js';
 import { indicadoresPorKm } from '../lib/consumo.js';
 import { pendencias } from '../lib/manutencao.js';
 import { resolver, PERIODOS, ROTULOS } from '../lib/periodo.js';
-import { moeda, valor, numero, iso } from '../lib/format.js';
+import { moeda, valor, numero } from '../lib/format.js';
 import { esc } from '../lib/html.js';
 import { vazio } from '../ui/vazio.js';
 import { abrirLancamento } from '../ui/lancamento.js';
 import { abrirAbastecimento } from '../ui/abastecimento.js';
+import { escolherPeriodo } from '../ui/escolher-periodo.js';
 
 export function telaDashboard(raiz, { perfil, ir }) {
   let periodoNome = 'hoje';
@@ -64,19 +65,9 @@ export function telaDashboard(raiz, { perfil, ir }) {
    * as duas copias discordarem.
    */
   function consolidar(movimentos, periodo) {
-    const r = resumirMovimentos(movimentos, periodo.dias);
-
-    const abastecimentos = movimentos
-      .filter((m) => m.origem === 'abastecimento')
-      .map((m) => m.registro);
-
     return {
-      ...r,
-      ...indicadoresPorKm({
-        abastecimentos,
-        ganhos: r.ganhos,
-        gastos: r.gastos,
-      }),
+      ...resumirMovimentos(movimentos, periodo.dias),
+      ...indicadoresPorKm(movimentos),
     };
   }
 
@@ -215,7 +206,7 @@ export function telaDashboard(raiz, { perfil, ir }) {
       <button type="button" class="link-relatorios" data-ir="relatorios">
         <span>
           <strong>Relatorios</strong>
-          <span class="apoio">Periodos longos, gastos por categoria e evolucao</span>
+          <span class="apoio">Faturamento por dia, media por dia trabalhado e gastos</span>
         </span>
         <span class="alerta-seta" aria-hidden="true">&rsaquo;</span>
       </button>
@@ -284,49 +275,4 @@ export function telaDashboard(raiz, { perfil, ir }) {
 
   carregar();
   return { recarregar: carregar };
-}
-
-
-// --- Escolha de periodo personalizado ---------------------------------
-
-function escolherPeriodo(atual) {
-  return new Promise(async (resolverPromise) => {
-    const { abrirSheet } = await import('../ui/sheet.js');
-
-    const form = document.createElement('form');
-    form.className = 'pilha';
-    form.innerHTML = `
-      <div class="dupla">
-        <div class="campo">
-          <label for="de">De</label>
-          <input class="entrada" id="de" name="de" type="date" required
-                 max="${iso()}" value="${atual?.de ?? iso()}">
-        </div>
-        <div class="campo">
-          <label for="ate">Ate</label>
-          <input class="entrada" id="ate" name="ate" type="date" required
-                 max="${iso()}" value="${atual?.ate ?? iso()}">
-        </div>
-      </div>
-      <button class="btn btn-principal btn-bloco" type="submit">Aplicar</button>
-    `;
-
-    let respondido = false;
-    const { fechar } = abrirSheet({
-      titulo: 'Escolher periodo',
-      corpo: form,
-      aoFechar: () => { if (!respondido) resolverPromise(null); },
-    });
-
-    form.addEventListener('submit', (ev) => {
-      ev.preventDefault();
-      const dados = new FormData(form);
-      const de = dados.get('de');
-      const ate = dados.get('ate');
-      if (!de || !ate) return;
-      respondido = true;
-      fechar();
-      resolverPromise({ de, ate });
-    });
-  });
 }

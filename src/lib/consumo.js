@@ -70,17 +70,60 @@ export function precoMedioLitro(abastecimentos) {
 }
 
 /**
- * Indicadores que dependem de distancia.
- * Cada um vem null quando falta dado, para a tela poder omitir em vez
- * de mostrar zero.
+ * Indicadores que dependem de distancia, a partir da lista unificada de
+ * movimentos (ver listarMovimentos em dados.js).
+ *
+ * Os km sao a diferenca entre o primeiro e o ultimo odometro anotado
+ * em abastecimentos do periodo. E a distancia do CARRO -- inclui ida
+ * ao mercado e viagem de fim de semana --, porque e a unica medida que
+ * o app tem.
+ *
+ * Ganho e custo por km contam so o que caiu dentro dessa janela. Dividir
+ * o faturamento do mes inteiro pelos km de 3 a 20 misturaria dias que
+ * o odometro nao mediu, e o ganho por km sairia inflado.
+ *
+ * O abastecimento que abre a janela fica fora do custo: ele encheu o
+ * tanque para o trecho ANTERIOR. E a mesma premissa de kmPorLitro.
+ *
+ * Cada indicador vem null quando falta dado, para a tela poder omitir
+ * em vez de mostrar zero.
  */
-export function indicadoresPorKm({ abastecimentos, ganhos, gastos }) {
-  const km = kmRodados(abastecimentos);
-  if (!km) return { km: null, custoPorKm: null, ganhoPorKm: null };
+export function indicadoresPorKm(movimentos) {
+  const nada = { km: null, custoPorKm: null, ganhoPorKm: null, janela: null };
+
+  const pontos = movimentos
+    .filter((m) => m.origem === 'abastecimento'
+      && Number.isFinite(m.registro?.odometro) && m.registro.odometro > 0)
+    .sort((a, b) => a.registro.odometro - b.registro.odometro);
+
+  if (pontos.length < 2) return nada;
+
+  const primeiro = pontos[0];
+  const ultimo = pontos[pontos.length - 1];
+  const km = ultimo.registro.odometro - primeiro.registro.odometro;
+  if (km <= 0) return nada;
+
+  // Odometro maior com data anterior e erro de digitacao; ordenar as
+  // datas evita uma janela invertida que nao conteria nada.
+  const [de, ate] = [primeiro.data, ultimo.data].sort();
+
+  let ganhos = 0;
+  let gastos = 0;
+  for (const m of movimentos) {
+    if (m === primeiro || m.data < de || m.data > ate) continue;
+    if (m.tipo === 'entrada') ganhos += m.valor;
+    else gastos += m.valor;
+  }
 
   return {
     km,
-    custoPorKm: gastos > 0 ? gastos / km : null,
     ganhoPorKm: ganhos > 0 ? ganhos / km : null,
+    custoPorKm: gastos > 0 ? gastos / km : null,
+    janela: {
+      de,
+      ate,
+      odometroInicial: primeiro.registro.odometro,
+      odometroFinal: ultimo.registro.odometro,
+    },
   };
 }

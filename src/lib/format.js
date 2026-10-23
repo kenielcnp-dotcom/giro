@@ -29,6 +29,14 @@ export const valor = (v) =>
 
 export const numero = (v) => NUMERO.format(Number(v) || 0);
 
+// Para o eixo dos graficos, onde "R$ 1.500,00" nao cabe: "1,5 mil".
+const COMPACTO = new Intl.NumberFormat('pt-BR', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
+
+export const compacto = (v) => COMPACTO.format(Number(v) || 0);
+
 // --- Datas -----------------------------------------------------------
 
 /** Data local no formato YYYY-MM-DD (o formato que o Postgres espera). */
@@ -51,8 +59,11 @@ export function deIso(texto) {
 }
 
 const DIAS = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+const DIAS_CURTOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
                'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const MESES_LONGOS = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
+                      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
 /** "30/09" */
 export function dataCurta(texto) {
@@ -77,6 +88,59 @@ export function dataRelativa(texto) {
 export function mesAno(texto) {
   const d = deIso(texto);
   return `${MESES[d.getMonth()]}/${d.getFullYear()}`;
+}
+
+/** "set" */
+export function mesCurto(texto) {
+  return MESES[deIso(texto).getMonth()];
+}
+
+/** "setembro de 2026" */
+export function mesExtenso(texto) {
+  const d = deIso(texto);
+  return `${MESES_LONGOS[d.getMonth()]} de ${d.getFullYear()}`;
+}
+
+/** "15 out" */
+export function diaMes(texto) {
+  const d = deIso(texto);
+  return `${d.getDate()} ${MESES[d.getMonth()]}`;
+}
+
+/** "qua, 15/10" */
+export function dataComSemana(texto) {
+  return `${DIAS_CURTOS[deIso(texto).getDay()]}, ${dataCurta(texto)}`;
+}
+
+/** "quarta, 15 de outubro" */
+export function dataExtensa(texto) {
+  const d = deIso(texto);
+  return `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES_LONGOS[d.getMonth()]}`;
+}
+
+/**
+ * Intervalo sem repetir o que as duas pontas tem em comum:
+ * "1 a 23 de outubro", "1 de agosto a 23 de outubro".
+ * Com `curto`: "1 a 23 out", "1 ago a 23 out".
+ *
+ * O ano so aparece quando nao e o corrente, ou quando as pontas caem em
+ * anos diferentes -- "outubro" sozinho ja diz "deste ano" para quem le.
+ */
+export function intervalo(de, ate, { curto = false, hoje = new Date() } = {}) {
+  const a = deIso(de);
+  const b = deIso(ate);
+  const nomes = curto ? MESES : MESES_LONGOS;
+  const liga = curto ? ' ' : ' de ';
+
+  const mesmoAno = a.getFullYear() === b.getFullYear();
+  const mesmoMes = mesmoAno && a.getMonth() === b.getMonth();
+  const comAno = !mesmoAno || b.getFullYear() !== hoje.getFullYear();
+
+  const ponta = (d, mes, ano) =>
+    `${d.getDate()}${mes ? liga + nomes[d.getMonth()] : ''}${ano ? liga + d.getFullYear() : ''}`;
+
+  if (de === ate) return ponta(a, true, comAno);
+  return `${ponta(a, !mesmoMes, comAno && !mesmoAno)} a ${ponta(b, true, comAno)}`;
 }
 
 // --- Entrada de valor -------------------------------------------------

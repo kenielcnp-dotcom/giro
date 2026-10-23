@@ -48,6 +48,13 @@ PARES = [
 
     ("linha",     "papel",       "borda estrutural",               3.0),
     ("linha",     "papel-alto",  "borda de card",                  3.0),
+
+    # Placar dos relatorios: comparacao com o periodo anterior escrita
+    # sobre o fundo verde (lucro) ou coral (prejuizo).
+    ("ink-2",     "entrada-bg",  "comparacao no placar de lucro",  4.5),
+    ("ink-2",     "saida-bg",    "comparacao no placar de prejuizo", 4.5),
+    ("saida",     "entrada-bg",  "queda no placar de lucro",       4.5),
+    ("entrada",   "saida-bg",    "alta no placar de prejuizo",     4.5),
 ]
 
 
